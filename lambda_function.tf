@@ -43,20 +43,23 @@ resource "aws_s3_bucket_object" "lambda_source_code_object" {
 }
 
 # for creating policy
-# data "aws_iam_policy_document" "lambda_policy_document" {
-#   version = "2012-10-17"
-#   statement {
-#     effect  = "Allow" 
-#     actions = ["sts:AssumeRole"]
-
-#     principals {
-#       type        = "Service"
-#       identifiers = ["lambda.amazonaws.com"]
-#       # identifiers = 
-#     }
-
-#   }
-# }
+data "aws_iam_policy_document" "lambda_policy_document" {
+  version = "2012-10-17"
+  statement {
+    effect = "Allow"
+    actions = [
+      "sqs:ReceiveMessage",
+      "sqs:DeleteMessage",
+      "sqs:GetQueueAttributes",
+      "logs:CreateLogGroup",
+      "logs:CreateLogStream",
+      "logs:PutLogEvents"
+    ]
+    resources = [
+      aws_lambda_function.lambda_sample_service.arn
+    ]
+  }
+}
 
 # Generating iam role for lambda
 resource "aws_iam_role" "iam_for_lambda" {
@@ -76,6 +79,11 @@ resource "aws_iam_role" "iam_for_lambda" {
   })
 }
 
+resource "aws_iam_role_policy" "lambda_assume_role" {
+  name   = "lambda-sqs-policy"
+  role   = aws_iam_role.iam_for_lambda.id
+  policy = data.aws_iam_policy_document.lambda_policy_document.json
+}
 # Provisiong the lambda 
 resource "aws_lambda_function" "lambda_sample_service" {
   function_name = var.lambda_function_name
@@ -87,7 +95,7 @@ resource "aws_lambda_function" "lambda_sample_service" {
   s3_key    = aws_s3_bucket_object.lambda_source_code_object.key
 
   source_code_hash = data.archive_file.lambda_source_code.output_base64sha256
-  timeout = 60
+  timeout          = 60
 
   environment {
     variables = {
