@@ -1,0 +1,38 @@
+This will be a demo API to showcase to others how to setup AWS using Node.js libraries.
+
+Requirements
+- AWS API Gateway is hosted with a nested endpoint under /f1/f2/messages
+
+- AWS Cognito authenticates the request using a strategy suitable for a production app (auth token works. Basic auth does not)
+
+- A POST request sends this info:
+
+name: string
+email: string
+subject: string
+body: string
+
+- This post request contacts AWS SQS. The message format is now:
+
+messageId: UUID
+name: string
+email: string
+message: string
+body: string
+
+- An AWS Lambda function receives the message. It handles several microservice operations
+
+1. Saves the sqs message to a DynamoDB table
+2. Save the same message to an RDS Postgres table
+3. Uses SNS to contact a public API at https://jsonplaceholder.typicode.com/
+4. Sends an SES email, containing some stringified JSON from the API, and also the SQS subject, body and name to the target email
+5. Saves the message and a small bit of data (maybe first record returned) from the API, as a file to an S3 bucket with a signed url and expiration date
+6. Logs everything on Cloudwatch to a custom group
+7. Creates a custom IAM role for one or more of these steps
+
+Notes:
+- Don't get caught up in minor details. This is NOT a real app, this is a simple showcase of AWS services.
+
+- You must push your work each day, no matter how small the additions are
+
+- Ideally the script creates all the resources (SQS queue, API Gateway endpoint, Lambda function etc). If not possible, or very difficult, we may use the AWS console instead. Please note how much of the resources you can create using the Node.js script.
