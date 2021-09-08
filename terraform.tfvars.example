@@ -1,0 +1,11 @@
+aws_profile = ""
+aws_region  = ""
+
+# DB
+rds_allocated_storage   = 20
+rds_database_name       = ""
+rds_username            = ""
+rds_password            = ""
+rds_port                = 5432
+rds_publicly_accessible = true
+lambda_source_bucket    = ""
