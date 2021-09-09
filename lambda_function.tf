@@ -62,6 +62,27 @@ data "aws_iam_policy_document" "lambda_policy_document" {
   }
 }
 
+data "aws_iam_policy_document" "cloudwatch_lambda_document" {
+  version = "2012-10-17"
+  statement {
+    effect = "Allow"
+    actions = [
+      "logs:GetLogEvents",
+      "logs:PutLogEvents",
+      "logs:CreateLogStream",
+      "logs:CreateLogGroup",
+      "logs:DescribeLogStreams",
+      "logs:PutRetentionPolicy",
+      "cloudwatch:*"
+    ]
+    resources = [
+      "*"
+    ]
+  }
+  
+}
+
+
 # Generating iam role for lambda
 resource "aws_iam_role" "iam_for_lambda" {
   name = "lambda-role"
@@ -80,10 +101,16 @@ resource "aws_iam_role" "iam_for_lambda" {
   })
 }
 
-resource "aws_iam_role_policy" "lambda_assume_role" {
-  name   = "lambda-sqs-policy"
+resource "aws_iam_role_policy" "sqs_access_policy" {
+  name   = "sqs_access_policy"
   role   = aws_iam_role.iam_for_lambda.id
   policy = data.aws_iam_policy_document.lambda_policy_document.json
+}
+
+resource "aws_iam_role_policy" "cloudwatch_logs_policy" {
+  name   = "cloudwatch_logs_policy"
+  role   = aws_iam_role.iam_for_lambda.id
+  policy = data.aws_iam_policy_document.cloudwatch_lambda_document.json
 }
 # Provisiong the lambda 
 resource "aws_lambda_function" "lambda_sample_service" {

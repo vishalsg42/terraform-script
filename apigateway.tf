@@ -129,8 +129,8 @@ resource "aws_api_gateway_integration" "sqs_integration" {
   type                    = "AWS"
   integration_http_method = "POST"
   credentials             = aws_iam_role.api-role.arn
-  passthrough_behavior = "NEVER"
-  
+  passthrough_behavior    = "NEVER"
+
   # type = "MOCK"
   # credentials             = aws_sqs_queue.sqs_sample_service.arn
 
@@ -150,7 +150,6 @@ resource "aws_api_gateway_integration" "sqs_integration" {
 
 }
 
-
 resource "aws_api_gateway_method_response" "method_200_response" {
   rest_api_id = aws_api_gateway_rest_api.root.id
   resource_id = aws_api_gateway_resource.f2.id
@@ -167,16 +166,17 @@ resource "aws_api_gateway_method_response" "method_200_response" {
 }
 
 resource "aws_api_gateway_integration_response" "integration_200_response" {
-  rest_api_id       = aws_api_gateway_rest_api.root.id
-  resource_id       = aws_api_gateway_resource.f2.id
-  http_method       = aws_api_gateway_method.sample_method_post.http_method
-  status_code       = aws_api_gateway_method_response.method_200_response.status_code
-  selection_pattern = "^2[0-9][0-9]" // regex pattern for any 200 message that comes back from SQS
+  rest_api_id         = aws_api_gateway_rest_api.root.id
+  resource_id         = aws_api_gateway_resource.f2.id
+  http_method         = aws_api_gateway_method.sample_method_post.http_method
+  status_code         = aws_api_gateway_method_response.method_200_response.status_code
+  selection_pattern   = "^2[0-9][0-9]" // regex pattern for any 200 message that comes back from SQS
   response_parameters = {}
-  # response_templates = {
-  #   "application/json" = "{\"message\": \"great success!\"}"
-  # }
 }
 
-
-
+# Deployment
+resource "aws_api_gateway_deployment" "sample_api_deployment" {
+  rest_api_id = aws_api_gateway_rest_api.root.id
+  stage_name = "prod"
+  
+}
