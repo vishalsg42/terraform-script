@@ -27,6 +27,7 @@ async function query (q) {
 
 module.exports.handler = async function (event, context, callback) {
   try {
+    console.log('event', JSON.stringify(event, null, 2));
     const { rows } = await query("select * from pg_tables")
     console.log(JSON.stringify(rows[0]))
     var response = {
