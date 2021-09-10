@@ -79,7 +79,7 @@ data "aws_iam_policy_document" "cloudwatch_lambda_document" {
       "*"
     ]
   }
-  
+
 }
 
 
@@ -132,6 +132,8 @@ resource "aws_lambda_function" "lambda_sample_service" {
       PG_DATABASE = aws_db_instance.rds_pg.name
       PG_PASSWORD = var.rds_password
       PG_PORT     = aws_db_instance.rds_pg.port
+      BUCKET_NAME = aws_s3_bucket.upload_bucket_name.id
+      MESSAGE_SQS_URL  = aws_sqs_queue.sqs_sample_service.url
     }
   }
 

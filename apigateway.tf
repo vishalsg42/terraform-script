@@ -172,6 +172,10 @@ resource "aws_api_gateway_integration_response" "integration_200_response" {
   status_code         = aws_api_gateway_method_response.method_200_response.status_code
   selection_pattern   = "^2[0-9][0-9]" // regex pattern for any 200 message that comes back from SQS
   response_parameters = {}
+
+  depends_on = [
+    aws_api_gateway_method_response.method_200_response
+  ]
 }
 
 # Deployment
@@ -179,10 +183,18 @@ resource "aws_api_gateway_integration_response" "integration_200_response" {
 
 resource "aws_api_gateway_deployment" "sample_api_deployment" {
   rest_api_id = aws_api_gateway_rest_api.root.id
+  depends_on = [
+    aws_api_gateway_method.sample_method_post,
+    aws_api_gateway_integration_response.integration_200_response,
+  ]
 }
 
 resource "aws_api_gateway_stage" "stage" {
   deployment_id = aws_api_gateway_deployment.sample_api_deployment.id
-  rest_api_id = aws_api_gateway_rest_api.root.id
-  stage_name = "prod"
+  rest_api_id   = aws_api_gateway_rest_api.root.id
+  stage_name    = "prod"
+  depends_on = [
+    aws_api_gateway_method.sample_method_post,
+    aws_api_gateway_integration_response.integration_200_response,
+  ]
 }
