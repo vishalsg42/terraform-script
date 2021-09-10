@@ -175,8 +175,14 @@ resource "aws_api_gateway_integration_response" "integration_200_response" {
 }
 
 # Deployment
+
+
 resource "aws_api_gateway_deployment" "sample_api_deployment" {
   rest_api_id = aws_api_gateway_rest_api.root.id
+}
+
+resource "aws_api_gateway_stage" "stage" {
+  deployment_id = aws_api_gateway_deployment.sample_api_deployment.id
+  rest_api_id = aws_api_gateway_rest_api.root.id
   stage_name = "prod"
-  
 }
