@@ -10,6 +10,13 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "pg": "^8.7.1"
+    "@aws-sdk/client-ses": "^3.31.0",
+    "csvjson": "^5.1.0",
+    "handlebars": "^4.7.7",
+    "lodash": "^4.17.21",
+    "nodemailer": "^6.6.3",
+    "pg": "^8.7.1",
+    "sql-bricks": "^2.0.5",
+    "stjs": "0.0.5"
   }
 }

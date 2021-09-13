@@ -82,6 +82,58 @@ data "aws_iam_policy_document" "cloudwatch_lambda_document" {
 
 }
 
+data "aws_iam_policy_document" "dynamodb_lambda_document" {
+  version = "2012-10-17"
+  statement {
+    effect = "Allow"
+    actions = [
+      "dynamodb:BatchWriteItem",
+      "dynamodb:PutItem",
+      "dynamodb:UpdateItem"
+    ]
+    resources = [
+      # "arn:aws:ses:*:*:identity/*"
+      aws_dynamodb_table.aws_infra_table.arn
+      # aws_lambda_function.lambda_sample_service.arn
+    ]
+  }
+
+}
+
+data "aws_iam_policy_document" "ses_lambda_document" {
+  version = "2012-10-17"
+  statement {
+    effect = "Allow"
+    actions = [
+      "ses:SendRawEmail",
+    ]
+    resources = [
+      # "arn:aws:dynamodb:*:*:table/aws_infra_table"
+      "arn:aws:ses:*:*:identity/*"
+      # aws_s3_bucket.upload_bucket_name.name.arn
+      # aws_dynamodb_table.aws_infra_table.arn
+      # aws_lambda_function.lambda_sample_service.arn
+    ]
+  }
+
+}
+
+data "aws_iam_policy_document" "s3_lambda_document" {
+  version = "2012-10-17"
+  statement {
+    effect = "Allow"
+    actions = [
+      "s3:PutObject",
+      "s3:PutObjectAcl",
+    ]
+    resources = [
+      aws_s3_bucket.upload_bucket_name.arn,
+      "${aws_s3_bucket.upload_bucket_name.arn}/*"
+    ]
+  }
+
+}
+
 
 # Generating iam role for lambda
 resource "aws_iam_role" "iam_for_lambda" {
@@ -112,6 +164,23 @@ resource "aws_iam_role_policy" "cloudwatch_logs_policy" {
   role   = aws_iam_role.iam_for_lambda.id
   policy = data.aws_iam_policy_document.cloudwatch_lambda_document.json
 }
+resource "aws_iam_role_policy" "dynamodb_access_policy" {
+  name   = "dynamodb_write_policy"
+  role   = aws_iam_role.iam_for_lambda.id
+  policy = data.aws_iam_policy_document.dynamodb_lambda_document.json
+}
+
+resource "aws_iam_role_policy" "ses_access_policy" {
+  name   = "ses_access_policy"
+  role   = aws_iam_role.iam_for_lambda.id
+  policy = data.aws_iam_policy_document.ses_lambda_document.json
+}
+
+resource "aws_iam_role_policy" "s3_access_policy" {
+  name   = "s3_access_policy"
+  role   = aws_iam_role.iam_for_lambda.id
+  policy = data.aws_iam_policy_document.s3_lambda_document.json
+}
 # Provisiong the lambda 
 resource "aws_lambda_function" "lambda_sample_service" {
   function_name = var.lambda_function_name
@@ -127,13 +196,13 @@ resource "aws_lambda_function" "lambda_sample_service" {
 
   environment {
     variables = {
-      PG_USER     = aws_db_instance.rds_pg.username
-      PG_HOST     = aws_db_instance.rds_pg.address
-      PG_DATABASE = aws_db_instance.rds_pg.name
-      PG_PASSWORD = var.rds_password
-      PG_PORT     = aws_db_instance.rds_pg.port
-      BUCKET_NAME = aws_s3_bucket.upload_bucket_name.id
-      MESSAGE_SQS_URL  = aws_sqs_queue.sqs_sample_service.url
+      PG_USER         = aws_db_instance.rds_pg.username
+      PG_HOST         = aws_db_instance.rds_pg.address
+      PG_DATABASE     = aws_db_instance.rds_pg.name
+      PG_PASSWORD     = var.rds_password
+      PG_PORT         = aws_db_instance.rds_pg.port
+      BUCKET_NAME     = aws_s3_bucket.upload_bucket_name.id
+      MESSAGE_SQS_URL = aws_sqs_queue.sqs_sample_service.url
     }
   }
 

@@ -91,3 +91,7 @@ resource "aws_security_group" "rds_security_group" {
     "Name" = local.rds_indentifier
   }
 }
+
+output "database-pg-endpoint" {
+  value = aws_db_instance.rds_pg.address
+}

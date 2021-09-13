@@ -198,3 +198,13 @@ resource "aws_api_gateway_stage" "stage" {
     aws_api_gateway_integration_response.integration_200_response,
   ]
 }
+
+
+# Cognito
+# resource "aws_api_gateway_authorizer" "api_authorizer" {
+#   name = "api_authorizer"
+#   rest_api_id = aws_api_gateway_rest_api.root.id
+#   type = "COGNITO_USER_POOLS"
+
+#   # authorizer_uri = 
+# }

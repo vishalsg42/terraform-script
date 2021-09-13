@@ -2,17 +2,20 @@ variable "upload_bucket_name" {
   type = string
 }
 
-resource "random_id" "bucket_postfix" {
+resource "random_string" "bucket_postfix" {
   keepers = {
     # Generate a new id each time we switch to a new AMI id
     bucket_name = "${var.upload_bucket_name}"
   }
-
-  byte_length = 8
+  length = 8
+  lower = true
+  upper = true
+  number = false
+  special = false
 }
 
 locals {
-  formatted_bucket_name = lower(random_id.bucket_postfix.id)
+  formatted_bucket_name = lower(random_string.bucket_postfix.id)
 }
 
 resource "aws_s3_bucket" "upload_bucket_name" {
@@ -20,5 +23,5 @@ resource "aws_s3_bucket" "upload_bucket_name" {
 }
 
 output "upload_bucket_name" {
-  value =  local.formatted_bucket_name
+  value =  aws_s3_bucket.upload_bucket_name.id
 }

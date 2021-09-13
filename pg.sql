@@ -1,0 +1,10 @@
+CREATE TABLE IF NOT EXISTS aws_infra_db (
+    message_id VARCHAR(40) PRIMARY KEY,
+    name VARCHAR (50) NULL,
+    message VARCHAR (50) NULL,
+    subject VARCHAR (255) NULL,
+    email VARCHAR (255) NULL,
+    body TEXT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    update_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
