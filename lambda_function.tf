@@ -13,7 +13,6 @@ locals {
     name              = "/aws/lambda/${var.lambda_function_name}"
     retention_in_days = 14
   }
-
 }
 
 # for lambda logs
@@ -92,12 +91,9 @@ data "aws_iam_policy_document" "dynamodb_lambda_document" {
       "dynamodb:UpdateItem"
     ]
     resources = [
-      # "arn:aws:ses:*:*:identity/*"
       aws_dynamodb_table.aws_infra_table.arn
-      # aws_lambda_function.lambda_sample_service.arn
     ]
   }
-
 }
 
 data "aws_iam_policy_document" "ses_lambda_document" {
@@ -108,14 +104,9 @@ data "aws_iam_policy_document" "ses_lambda_document" {
       "ses:SendRawEmail",
     ]
     resources = [
-      # "arn:aws:dynamodb:*:*:table/aws_infra_table"
       "arn:aws:ses:*:*:identity/*"
-      # aws_s3_bucket.upload_bucket_name.name.arn
-      # aws_dynamodb_table.aws_infra_table.arn
-      # aws_lambda_function.lambda_sample_service.arn
     ]
   }
-
 }
 
 data "aws_iam_policy_document" "s3_lambda_document" {
@@ -131,14 +122,12 @@ data "aws_iam_policy_document" "s3_lambda_document" {
       "${aws_s3_bucket.upload_bucket_name.arn}/*"
     ]
   }
-
 }
 
 
 # Generating iam role for lambda
 resource "aws_iam_role" "iam_for_lambda" {
   name = "lambda-role"
-  # assume_role_policy = data.aws_iam_policy_document.lambda_policy_document.json
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
