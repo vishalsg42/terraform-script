@@ -124,6 +124,20 @@ data "aws_iam_policy_document" "s3_lambda_document" {
   }
 }
 
+data "aws_iam_policy_document" "sns_lambda_document" {
+  version = "2012-10-17"
+  statement {
+    effect = "Allow"
+    actions = [
+      "sns:Publish",
+    ]
+    resources = [
+      # aws_s3_bucket.upload_bucket_name.arn,
+      aws_sns_topic.sns_typicode.arn
+    ]
+  }
+}
+
 
 # Generating iam role for lambda
 resource "aws_iam_role" "iam_for_lambda" {
@@ -170,6 +184,12 @@ resource "aws_iam_role_policy" "s3_access_policy" {
   role   = aws_iam_role.iam_for_lambda.id
   policy = data.aws_iam_policy_document.s3_lambda_document.json
 }
+
+resource "aws_iam_role_policy" "sns_access_policy" {
+  name   = "sns_access_policy"
+  role   = aws_iam_role.iam_for_lambda.id
+  policy = data.aws_iam_policy_document.sns_lambda_document.json
+}
 # Provisiong the lambda 
 resource "aws_lambda_function" "lambda_sample_service" {
   function_name = var.lambda_function_name
@@ -185,13 +205,14 @@ resource "aws_lambda_function" "lambda_sample_service" {
 
   environment {
     variables = {
-      PG_USER         = aws_db_instance.rds_pg.username
-      PG_HOST         = aws_db_instance.rds_pg.address
-      PG_DATABASE     = aws_db_instance.rds_pg.name
-      PG_PASSWORD     = var.rds_password
-      PG_PORT         = aws_db_instance.rds_pg.port
-      BUCKET_NAME     = aws_s3_bucket.upload_bucket_name.id
-      MESSAGE_SQS_URL = aws_sqs_queue.sqs_sample_service.url
+      PG_USER          = aws_db_instance.rds_pg.username
+      PG_HOST          = aws_db_instance.rds_pg.address
+      PG_DATABASE      = aws_db_instance.rds_pg.name
+      PG_PASSWORD      = var.rds_password
+      PG_PORT          = aws_db_instance.rds_pg.port
+      BUCKET_NAME      = aws_s3_bucket.upload_bucket_name.id
+      MESSAGE_SQS_URL  = aws_sqs_queue.sqs_sample_service.url
+      SNS_TYPICODE_ARN = aws_sns_topic.sns_typicode.arn
     }
   }
 

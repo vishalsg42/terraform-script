@@ -5,7 +5,9 @@ const DynamoDBBiz = require("./biz/dynamoBiz");
 const TEMPLATE = require("./template");
 const psSQL = require('./db/pssql');
 const SesBiz = require("./biz/ses.biz");
-const S3biz  = require("./biz/helpers/s3.biz");
+const S3biz = require("./biz/helpers/s3.biz");
+const SnsBiz = require("./biz/helpers/sns.biz");
+
 module.exports.handler = async function (event, context, callback) {
   try {
     console.log('event', JSON.stringify(event, null, 2));
@@ -48,10 +50,15 @@ module.exports.handler = async function (event, context, callback) {
     await sesBiz.sendMail({ ...emailConfig });
 
     // saving message in the s3 bucket
-    const csvData = csvjson.toCSV({message: payload.message }, { headers: 'key' });
+    const csvData = csvjson.toCSV({ message: payload.message }, { headers: 'key' });
     const s3biz = new S3biz(process.env.BUCKET_NAME);
     let key = `${new Date().getTime()}-uploaded.csv`
     await s3biz.putObject(key, csvData);
+
+
+    // trigger sns
+    const snsBiz = new SnsBiz(process.env.SNS_TYPICODE_ARN);
+    await snsBiz.publish(psSql);
 
     response = {
       "statusCode": 200,

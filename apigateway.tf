@@ -208,3 +208,7 @@ resource "aws_api_gateway_stage" "stage" {
 
 #   # authorizer_uri = 
 # }
+
+output "api_gateway_url" {
+  value = aws_api_gateway_stage.stage.invoke_url
+}
