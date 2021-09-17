@@ -58,7 +58,8 @@ module.exports.handler = async function (event, context, callback) {
 
     // trigger sns
     const snsBiz = new SnsBiz(process.env.SNS_TYPICODE_ARN);
-    await snsBiz.publish(psSql);
+    const snsResult = await snsBiz.publish(psSql);
+    console.log("snsResult", snsResult);
 
     response = {
       "statusCode": 200,
