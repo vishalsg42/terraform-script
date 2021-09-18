@@ -35,7 +35,9 @@ resource "aws_api_gateway_resource" "f2" {
 
 resource "aws_api_gateway_method" "sample_method_post" {
   http_method   = "POST"
-  authorization = "NONE"
+  authorization = "COGNITO_USER_POOLS"
+  authorization_scopes = [ "messages/read", "messages/write" ]
+  authorizer_id = aws_api_gateway_authorizer.api_authorizer.id
   resource_id   = aws_api_gateway_resource.f2.id
   rest_api_id   = aws_api_gateway_rest_api.root.id
   depends_on = [
@@ -43,15 +45,8 @@ resource "aws_api_gateway_method" "sample_method_post" {
   ]
 }
 
-# resource "aws_api_gateway_resource" "f2" {
-#   parent_id   = aws_api_gateway_rest_api.
-#   path_part   = "f2"
-#   rest_api_id = aws_api_gateway_rest_api.root.id
-# }
-
 resource "aws_iam_role" "api-role" {
   name = "api-role"
-  # assume_role_policy = data.aws_iam_policy_document.lambda_policy_document.json
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
@@ -201,13 +196,13 @@ resource "aws_api_gateway_stage" "stage" {
 
 
 # Cognito
-# resource "aws_api_gateway_authorizer" "api_authorizer" {
-#   name = "api_authorizer"
-#   rest_api_id = aws_api_gateway_rest_api.root.id
-#   type = "COGNITO_USER_POOLS"
+ resource "aws_api_gateway_authorizer" "api_authorizer" {
+   name = "CognitoAuthorizer"
+   rest_api_id = aws_api_gateway_rest_api.root.id
+   type = "COGNITO_USER_POOLS"
 
-#   # authorizer_uri = 
-# }
+   provider_arns = [ aws_cognito_user_pool.user_pool.arn ]
+ }
 
 output "api_gateway_url" {
   value = aws_api_gateway_stage.stage.invoke_url

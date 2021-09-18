@@ -220,3 +220,7 @@ resource "aws_lambda_function" "lambda_sample_service" {
     aws_cloudwatch_log_group.lambda_sample_logs
   ]
 }
+
+output "cloudwatch_log_group" {
+  value = aws_cloudwatch_log_group.lambda_sample_logs.arn
+}
